@@ -134,7 +134,6 @@ public class EventServiceImpl implements EventService {
                 .collect(Collectors.toList());
     }
 
-    @Override
    @Override
     public List<Event> getEventsByDateRange(LocalDateTime start, LocalDateTime end) {
         if (start == null || end == null) {
