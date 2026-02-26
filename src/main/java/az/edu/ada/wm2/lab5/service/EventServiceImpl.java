@@ -83,6 +83,7 @@ public class EventServiceImpl implements EventService {
     }
 
     // Custom methods
+
     @Override
     public List<Event> getEventsByTag(String tag) {
         // Edge case: handle null or empty search strings
