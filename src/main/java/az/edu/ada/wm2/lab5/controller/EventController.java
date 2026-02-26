@@ -97,8 +97,6 @@ public class EventController {
         }
     }
 
-    // --- NEW FILTERING REQUESTS ---
-
     // GET /api/events/filter/date
     @GetMapping("/filter/date")
     public ResponseEntity<List<Event>> filterByDate(
