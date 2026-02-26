@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -23,7 +24,7 @@ public class EventController {
         this.eventService = eventService;
     }
 
-    // 1. CREATE - POST /api/events
+    // 1. CREATE
     @PostMapping
     public ResponseEntity<Event> createEvent(@RequestBody Event event) {
         try {
@@ -34,7 +35,7 @@ public class EventController {
         }
     }
 
-    // 2. LIST ALL - GET /api/events
+    // 2. LIST ALL
     @GetMapping
     public ResponseEntity<List<Event>> getAllEvents() {
         try {
@@ -45,7 +46,7 @@ public class EventController {
         }
     }
 
-    // 3. GET ONE BY ID - GET /api/events/{id}
+    // 3. GET BY ID
     @GetMapping("/{id}")
     public ResponseEntity<Event> getEventById(@PathVariable UUID id) {
         try {
@@ -58,7 +59,7 @@ public class EventController {
         }
     }
 
-    // 4. REMOVE BY ID - DELETE /api/events/{id}
+    // 4. DELETE
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEvent(@PathVariable UUID id) {
         try {
@@ -71,7 +72,7 @@ public class EventController {
         }
     }
 
-    // 5. FULL UPDATE (PUT) - PUT /api/events/{id}
+    // 5. FULL UPDATE
     @PutMapping("/{id}")
     public ResponseEntity<Event> updateEvent(@PathVariable UUID id, @RequestBody Event event) {
         try {
@@ -84,7 +85,7 @@ public class EventController {
         }
     }
 
-    // 6. PARTIAL UPDATE (PATCH) - PATCH /api/events/{id}
+    // 6. PARTIAL UPDATE
     @PatchMapping("/{id}")
     public ResponseEntity<Event> partialUpdateEvent(@PathVariable UUID id, @RequestBody Event partialEvent) {
         try {
@@ -97,33 +98,33 @@ public class EventController {
         }
     }
 
-    // GET /api/events/filter/date
+    // FILTER BY DATE
     @GetMapping("/filter/date")
     public ResponseEntity<List<Event>> filterByDate(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
         try {
-            List<Event> events = eventService.getEventsBetween(start, end);
+            List<Event> events = eventService.getEventsByDateRange(start, end);
             return new ResponseEntity<>(events, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 
-    // GET /api/events/filter/price
+    // FILTER BY PRICE
     @GetMapping("/filter/price")
     public ResponseEntity<List<Event>> filterByPrice(
-            @RequestParam Double min,
-            @RequestParam Double max) {
+            @RequestParam BigDecimal min,
+            @RequestParam BigDecimal max) {
         try {
-            List<Event> events = eventService.getEventsInPriceRange(min, max);
+            List<Event> events = eventService.getEventsByPriceRange(min, max);
             return new ResponseEntity<>(events, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 
-    // GET /api/events/filter/tag
+    // FILTER BY TAG
     @GetMapping("/filter/tag")
     public ResponseEntity<List<Event>> filterByTag(@RequestParam String tag) {
         try {
@@ -134,7 +135,7 @@ public class EventController {
         }
     }
 
-    // GET /api/events/upcoming
+    // UPCOMING EVENTS
     @GetMapping("/upcoming")
     public ResponseEntity<List<Event>> getUpcomingEvents() {
         try {
@@ -145,18 +146,15 @@ public class EventController {
         }
     }
 
-    // PATCH /api/events/{id}/price
+    // UPDATE PRICE
     @PatchMapping("/{id}/price")
     public ResponseEntity<Event> updateEventPrice(
             @PathVariable UUID id,
-            @RequestParam Double price) {
+            @RequestParam BigDecimal price) {
         try {
             Event updatedEvent = eventService.updateEventPrice(id, price);
-            if (updatedEvent == null) {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
             return new ResponseEntity<>(updatedEvent, HttpStatus.OK);
-        } catch (RuntimeException e) {
+        } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
